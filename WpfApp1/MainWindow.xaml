@@ -20,12 +20,17 @@
         </Grid.RowDefinitions>
 
         <!--верхняя область-->
-        <Grid Grid.Row="0" Background="#4a4c4f"/>
+        <Grid Grid.Row="0" Background="#4a4c4f">
+
+            
+
+        </Grid>
 
         <!--центральная область-->
         <Grid Grid.Row="1">
             <Grid>
-                <TabControl TabStripPlacement="Top">
+                <TabControl TabStripPlacement="Top"
+                            >
                     <TabItem Header="все треки">
                         <StackPanel Orientation="Vertical">
 
@@ -144,6 +149,32 @@
                                        HorizontalAlignment="Center"/>
 
                             </StackPanel>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="metadata">
+                        <Grid ShowGridLines="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" >
+                                <Label Content="filename" />
+                                <Label Content="title" />
+                                <Label Content="artist" />
+                                <Label Content="album" />
+                                <Label Content="year" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1">
+                                <TextBox Height="25.6"/>
+                                <TextBox Height="25.6"/>
+                                <TextBox Height="25.6"/>
+                                <TextBox Height="25.6"/>
+                                <TextBox Height="25.6"/>
+                            </StackPanel>
+
+
                         </Grid>
                     </TabItem>
                 </TabControl>
