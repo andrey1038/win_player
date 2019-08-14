@@ -20,6 +20,10 @@ using System.Data.SqlClient;
 
 
 
+
+
+
+
 namespace WpfApp1
 {
     /// <summary>
@@ -33,15 +37,26 @@ namespace WpfApp1
         public object Id;
         public string filename;
         public string title;
-        public short bitrate;
         public TimeSpan duration;
 
         //необязательные поля
         public object artist;
+        public object album;
         public DateTime year;
         //art
     }
     struct PList
+    {
+        public object Id;
+        public string name;
+    }
+    struct Artist
+    {
+        public object Id;
+        public string name;
+
+    }
+    struct Album
     {
         public object Id;
         public string name;
@@ -55,10 +70,16 @@ namespace WpfApp1
         SqlConnection connection;
         SqlCommand command;
         SqlDataReader reader;
-        List<Track> tracks = new List<Track>();
-        List<PList> pLists = new List<PList>();
 
-        //var main application
+        List<Track> tracks = new List<Track>();
+        List<Track> tracks_p = new List<Track>();
+        List<Track> tracks_t = new List<Track>();
+        List<PList> pLists = new List<PList>();
+        List<Artist> aList = new List<Artist>();
+        List<Album> albums = new List<Album>();
+
+
+        //var application
         const string allmusic_folder_name = "all your music";
         const string newmusic_folder_name = "here new music";
         const string music_folder_name = "wpf1";
@@ -177,7 +198,6 @@ namespace WpfApp1
             Track track;
             track.filename = Func_shielding(nameFile.Substring(1 + music_folder_full.Length + newmusic_folder_name.Length));
             track.title = Func_shielding(taglib.Tag.Title);
-            track.bitrate = Convert.ToInt16(taglib.Properties.AudioBitrate);
             track.duration = taglib.Properties.Duration;
 
             //проверка на недопустимые значения полей
@@ -247,13 +267,95 @@ namespace WpfApp1
                 }
             }
 
+            //привязка к альбому
+            track.album = null;
+            string alb = taglib.Tag.Album;
+            if (alb != null)
+            {
+                if (alb.Length == 0 || alb.Length > 50)
+                {
+                    MessageBox.Show("не возможно добавить альбом тк. " +
+                    "его длина привышает 50 символов.\n" +
+                    "filename: " + track.filename);
+                    return false;
+                }
+                else
+                {
+                    //защита
+                    alb = Func_shielding(alb);
+
+                    //проверка на существование альбома в БД
+                    sqlExpression = "SELECT Id FROM Album WHERE name=N'" + alb + "'";
+                    command = new SqlCommand(sqlExpression, connection);
+                    reader = command.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        //альбом есть в БД
+                        //связка трека и альбома
+                        reader.Read();
+                        track.album = reader.GetValue(0);
+                        reader.Close();
+                    }
+                    else
+                    {
+                        reader.Close();
+
+                        //альбома нет в БД
+                        //добавление нового альбома в БД
+
+                        //проверка на существование артиста
+                        //тк. поле "artist" таблицы "Album" является обязательным
+                        //по сути эта проверка не нужна тк. если программа до сюда дошла по факту артист уже есть.
+                        if (track.artist == null)
+                        {
+                            MessageBox.Show("сработала защитная проверка на существование артиста\n" +
+                                "артиста нет, а должен быть. AddTrack(...)");
+                        }
+
+                        sqlExpression = "INSERT INTO Album (name, artist) VALUES (N'" + alb + "','" + track.artist + "')";
+                        command = new SqlCommand(sqlExpression, connection);
+                        int i_PL = command.ExecuteNonQuery();
+                        if (i_PL <= 0)
+                        {
+                            MessageBox.Show("отмена операции !\n" +
+                               "запрос на добавление альбома не выполнен\n" +
+                               "ExecuteNonQuery return: " + i_PL);
+                            return false;
+                        }
+                        reader.Close();
+
+                        //получение id альбома
+                        sqlExpression = "SELECT Id FROM Album WHERE name=N'" + alb + "'";
+                        command = new SqlCommand(sqlExpression, connection);
+                        reader = command.ExecuteReader();
+
+                        //связка трека и альбома
+                        reader.Read();
+                        track.album = reader.GetValue(0);
+                        reader.Close();
+                    }
+                }
+            }
+
             //добавление нового трека в БД
-            sqlExpression = "INSERT INTO Track (filename, title, artist, duration, bitrate) VALUES (";
-            sqlExpression += "N'" + track.filename + "',";
-            sqlExpression += "N'" + track.title + "',";
-            sqlExpression += "'" + track.artist + "',";
-            sqlExpression += "'" + track.duration + "',";
-            sqlExpression += "'" + track.bitrate + "')";
+            if (track.album == null)
+            {
+                sqlExpression = "INSERT INTO Track (filename, title, artist, duration) VALUES (";
+                sqlExpression += "N'" + track.filename + "',";
+                sqlExpression += "N'" + track.title + "',";
+                sqlExpression += "'" + track.artist + "',";
+                sqlExpression += "'" + track.duration + "')";
+            }
+            else
+            {
+                sqlExpression = "INSERT INTO Track (filename, title, artist, duration, album) VALUES (";
+                sqlExpression += "N'" + track.filename + "',";
+                sqlExpression += "N'" + track.title + "',";
+                sqlExpression += "'" + track.artist + "',";
+                sqlExpression += "'" + track.duration + "',";
+                sqlExpression += "'" + track.album + "')";
+            }
+            
 
             command = new SqlCommand(sqlExpression, connection);
             int i_track = command.ExecuteNonQuery();
@@ -265,95 +367,7 @@ namespace WpfApp1
                 return false;
             }
 
-            //привязка к альбому
-            string alb = taglib.Tag.Album;
-            if (alb == null || alb.Length == 0 || alb.Length > 40)
-            {
-                MessageBox.Show("не возможно добавить плей лист тк. " +
-                    "его длина привышает 40 символов.");
-                //return false;
-            }
-            else
-            {
-                //защита
-                alb = Func_shielding(alb);
-
-                //получение id трека
-                sqlExpression = "SELECT Id FROM Track WHERE filename=N'" + track.filename + "'";
-                command = new SqlCommand(sqlExpression, connection);
-                reader = command.ExecuteReader();
-
-                reader.Read();
-                object id_track = reader.GetValue(0);
-                reader.Close();
-
-                //проверка на существование альбома в БД
-                sqlExpression = "SELECT Id FROM PlayList WHERE name=N'" + alb + "'";
-                command = new SqlCommand(sqlExpression, connection);
-                reader = command.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    //альбом есть в БД
-                    //связка трека и альбома
-                    reader.Read();
-                    sqlExpression = "INSERT INTO inPlayList (playlist,track) VALUES (";
-                    sqlExpression += "'" + reader.GetValue(0) + "',";
-                    sqlExpression += "'" + id_track + "')";
-
-                    reader.Close();
-                    command = new SqlCommand(sqlExpression, connection);
-                    int i_inPL = command.ExecuteNonQuery();
-                    if (i_inPL <= 0)
-                    {
-                        MessageBox.Show("отмена операции !\n" +
-                            "запрос на добавление связи альбома и трека не выполнен\n" +
-                            "ExecuteNonQuery return: " + i_inPL);
-                        //return false;
-                    }
-                    reader.Close();
-                }
-                else
-                {
-                    reader.Close();
-
-                    //альбома нет в БД
-                    //добавление нового альбома в БД
-                    sqlExpression = "INSERT INTO PlayList (name) VALUES (N'" + alb + "')";
-                    command = new SqlCommand(sqlExpression, connection);
-                    int i_PL = command.ExecuteNonQuery();
-                    if (i_PL <= 0)
-                    {
-                        MessageBox.Show("отмена операции !\n" +
-                           "запрос на добавление альбома не выполнен\n" +
-                           "ExecuteNonQuery return: " + i_PL);
-                        return false;
-                    }
-                    reader.Close();
-
-                    //получение id плей листа
-                    sqlExpression = "SELECT Id FROM PlayList WHERE name=N'" + alb + "'";
-                    command = new SqlCommand(sqlExpression, connection);
-                    reader = command.ExecuteReader();
-
-                    //связка трека и альбома
-                    reader.Read();
-                    sqlExpression = "INSERT INTO inPlayList (playlist,track) VALUES (";
-                    sqlExpression += "'" + reader.GetValue(0) + "',";
-                    sqlExpression += "'" + id_track + "')";
-
-                    reader.Close();
-                    command = new SqlCommand(sqlExpression, connection);
-                    int i_inPL = command.ExecuteNonQuery();
-                    if (i_inPL <= 0)
-                    {
-                        MessageBox.Show("отмена операции !\n" +
-                            "запрос на добавление связи альбома и трека не выполнен\n" +
-                            "ExecuteNonQuery return: " + i_inPL);
-                        return false;
-                    }
-                    reader.Close();
-                }
-            }
+           
 
             return true;
         }
@@ -423,28 +437,6 @@ namespace WpfApp1
 
             //вызов окна DB_worcker
             //dB_Worker.Show();
-            
-            //загрузка плей листов из БД и загрузка в listbox
-            sqlExpression = "SELECT Id, name FROM PlayList";
-            command = new SqlCommand(sqlExpression, connection);
-            reader = command.ExecuteReader();
-            if (reader.HasRows)
-            {
-                while (reader.Read())
-                {
-                    PList temp = new PList();
-                    temp.Id = reader.GetValue(0);
-                    temp.name = reader.GetString(1);
-
-                    pLists.Add(temp);
-                    p_listbox.Items.Add(temp.name);
-                }
-            }
-            else
-            {
-                MessageBox.Show("плей листов нет!");
-            }
-            reader.Close();
 
             //загрузка треков из БД
             sqlExpression = "SELECT t1.Id, t1.filename, t1.title, t2.name FROM Track as t1 LEFT OUTER JOIN Artist as t2 ON t1.artist = t2.Id";
@@ -461,15 +453,46 @@ namespace WpfApp1
                     temp.artist = reader.GetString(3);
 
                     tracks.Add(temp);
+                    m_listbox.Items.Add(temp.title + " | " + temp.artist);
                 }
             }
             reader.Close();
 
-            //загрузка треков в listbox
-            foreach (Track i in tracks)
+            //загрузка плей листов из БД
+            sqlExpression = "SELECT Id, name FROM PlayList";
+            command = new SqlCommand(sqlExpression, connection);
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
             {
-                m_listbox.Items.Add(i.title + " | " + i.artist);
+                while (reader.Read())
+                {
+                    PList temp = new PList();
+                    temp.Id = reader.GetValue(0);
+                    temp.name = reader.GetString(1);
+
+                    pLists.Add(temp);
+                    p_listbox.Items.Add(temp.name);
+                }
             }
+            reader.Close();
+
+            //загрузка артистов из БД
+            sqlExpression = "SELECT Id, name FROM Artist";
+            command = new SqlCommand(sqlExpression, connection);
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    Artist temp = new Artist();
+                    temp.Id = reader.GetValue(0);
+                    temp.name = reader.GetString(1);
+
+                    aList.Add(temp);
+                    artist_listbox.Items.Add(temp.name);
+                }
+            }
+            reader.Close();
 
             //загрузка первого трека в mediaelement
             loadedmediasourse(0);
@@ -748,6 +771,7 @@ namespace WpfApp1
                     crutch_1 = false;
                     m_listbox.Items.Clear();
                     in_listbox.Items.Clear();
+                    in_album_listbox.Items.Clear();
                     tracks.Clear();
                     crutch_1 = true;
 
@@ -786,12 +810,10 @@ namespace WpfApp1
         {
             //очитска списков
             crutch_1 = false;
-            m_listbox.Items.Clear();
             in_listbox.Items.Clear();
-            tracks.Clear();
+            tracks_p.Clear();
             crutch_1 = true;
 
-            //маленький костылик //одному богу известно за что он отвечает
             m_listbox_combobox.SelectedIndex = -1;
 
             //загрузка Id выбраного плей листа
@@ -819,18 +841,9 @@ namespace WpfApp1
                     temp.title = reader.GetString(2);
                     temp.artist = reader.GetString(3);
 
-                    tracks.Add(temp);
+                    tracks_p.Add(temp);
+                    in_listbox.Items.Add(temp.title + " | " + temp.artist);
                 }
-
-                //обновление литбоксов
-                foreach (Track i in tracks)
-                {
-                    m_listbox.Items.Add(i.title + " | " + i.artist);
-                    in_listbox.Items.Add(i.title + " | " + i.artist);
-                }
-
-                //установка индекса в начало списка
-                m_index = 0;
             }
 
             reader.Close();
@@ -839,9 +852,137 @@ namespace WpfApp1
         {
             if (crutch_1)
             {
+                tracks = tracks_p;
+
+                crutch_1 = false;
+                m_listbox.Items.Clear();
+                crutch_1 = true;
+
+                foreach (Track i in tracks)
+                {
+                    m_listbox.Items.Add(i.title + " | " + i.artist);
+                }
+
                 loadedmediasourse(in_listbox.SelectedIndex);
                 m_index = in_listbox.SelectedIndex;
             } 
+        }
+        private void Artist_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //очиска списков
+            crutch_1 = false;
+            tracks_t.Clear();
+            albums.Clear();
+            album_listbox.Items.Clear();
+            in_album_listbox.Items.Clear();
+            crutch_1 = true;
+
+            //получение Id выбраного артиста
+            object tempidartist = aList[artist_listbox.SelectedIndex].Id;
+
+            //выборка альбомов из БД
+            sqlExpression = "SELECT Id, name FROM Album WHERE Album.artist = '" + tempidartist + "'";
+            command = new SqlCommand(sqlExpression, connection);
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    Album temp = new Album();
+                    temp.Id = reader.GetValue(0);
+                    temp.name = reader.GetString(1);
+
+                    albums.Add(temp);
+                    album_listbox.Items.Add(temp.name);
+                }
+            }
+            reader.Close();
+
+            //выборка треков по автору из БД
+            sqlExpression = "SELECT Track.Id, Track.filename, Track.title, Artist.name FROM " +
+                "Track LEFT OUTER JOIN Artist ON Track.artist = Artist.Id " +
+                "WHERE Track.artist = '" + tempidartist + "' AND Track.album IS NULL";
+            command = new SqlCommand(sqlExpression, connection);
+            reader = command.ExecuteReader();
+            if (reader.HasRows)
+            {
+                while (reader.Read())
+                {
+                    Track temp = new Track();
+                    temp.Id = reader.GetValue(0);
+                    temp.filename = reader.GetString(1);
+                    temp.title = reader.GetString(2);
+                    temp.artist = reader.GetString(3);
+
+                    tracks_t.Add(temp);
+                    in_album_listbox.Items.Add(temp.title + " | " + temp.artist);
+                }
+            }
+
+            reader.Close();
+        }
+        private void Album_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (crutch_1)
+            {
+                //очиска списков
+                crutch_1 = false;
+                tracks_t.Clear();
+                in_album_listbox.Items.Clear();
+                crutch_1 = true;
+
+                m_listbox_combobox.SelectedIndex = -1;
+
+                //получение Id выбраного артиста
+                object tempalbumid = albums[album_listbox.SelectedIndex].Id;
+
+                //выборка из БД
+                sqlExpression = "SELECT Track.Id, Track.filename, Track.title, Artist.name, Album.name FROM " +
+                    "(Track LEFT OUTER JOIN Artist ON Track.artist = Artist.Id) LEFT OUTER JOIN Album ON Track.album = Album.Id " +
+                    "WHERE Track.album = '" + tempalbumid + "'";
+                command = new SqlCommand(sqlExpression, connection);
+                reader = command.ExecuteReader();
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        Track temp = new Track();
+                        temp.Id = reader.GetValue(0);
+                        temp.filename = reader.GetString(1);
+                        temp.title = reader.GetString(2);
+                        temp.artist = reader.GetString(3);
+                        temp.album = reader.GetString(4);
+
+                        tracks_t.Add(temp);
+                        in_album_listbox.Items.Add(temp.title + " | " + temp.artist);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("в этом альбоме нет треков");
+                }
+
+                reader.Close();
+            }
+        }
+        private void In_album_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (crutch_1)
+            {
+                tracks = tracks_t;
+
+                crutch_1 = false;
+                m_listbox.Items.Clear();
+                crutch_1 = true;
+
+                foreach (Track i in tracks)
+                {
+                    m_listbox.Items.Add(i.title + " | " + i.artist);
+                }
+
+                loadedmediasourse(in_album_listbox.SelectedIndex);
+                m_index = in_listbox.SelectedIndex;
+            }
         }
 
             //---sleders---//
