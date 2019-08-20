@@ -18,14 +18,15 @@
 
         <SolidColorBrush x:Key="MainColor" Color="White"/>
         <SolidColorBrush x:Key="ButtonColor_1" Color="#77797b"/>
+        <SolidColorBrush x:Key="MainItemColor" Color="WhiteSmoke"/>
+        <SolidColorBrush x:Key="itemColor_1" Color="#2098cc"/>
 
 
-        
-        
+
     </Window.Resources>
-    
-    
-    <Grid ShowGridLines="False">
+
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
             <RowDefinition Height="*"/>
@@ -44,32 +45,61 @@
         <Grid Grid.Row="1">
             <Grid>
                 <TabControl TabStripPlacement="Top">
-                    <TabItem Header="все треки">
-                        <StackPanel Orientation="Vertical">
+                    <TabItem Header="все треки" >
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
 
-                            <ComboBox x:Name="m_listbox_combobox"
+                            <ComboBox x:Name="m_listbox_combobox" Grid.Row="0"
                                       SelectionChanged="M_listbox_combobox_SelectionChanged">
                                 <TextBlock Text="все треки"/>
                             </ComboBox>
 
-                            <ListBox Name="m_listbox"
+                            <ListBox Name="m_listbox" Grid.Row="1"
                                  VerticalAlignment="Stretch"
-                                 Height="auto"
+                                 HorizontalAlignment="Stretch"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  SelectedItem="1"
-                                 SelectionChanged="M_listbox_SelectionChanged">
+                                 SelectionChanged="M_listbox_SelectionChanged"
+                                 >
+
+                                <ListBox.ItemTemplate>
+                                    <ItemContainerTemplate>
+                                        <Grid>
+
+                                            <Rectangle Height="46" Width="560"
+                                                       RadiusX="5" RadiusY="5"
+                                                       Fill="{StaticResource MainItemColor}"/>
+
+                                            <StackPanel Orientation="Horizontal">
+
+                                                <Rectangle Fill="{StaticResource itemColor_1}"
+                                                           Width="6" Margin="6,23,0,0" Height="2"/>
+                                                <Rectangle Fill="{StaticResource itemColor_1}"
+                                                           Width="6" Margin="3,23,0,0" Height="2"/>
+                                                <Rectangle Fill="{StaticResource itemColor_1}"
+                                                           Width="6" Margin="3,23,6,0" Height="2"/>
+                                                
+                                                <Image Height="40" Source="imageapp\dtpxAvHiRes.jpg"/>
+                                                <StackPanel Orientation="Vertical" Margin="10,3">
+                                                    <TextBlock Text="{Binding title}" FontSize="16" FontFamily="Impact" Foreground="{DynamicResource itemColor_1}"/>
+                                                    <TextBlock Text="{Binding artist}" FontSize="12"/>
+                                                </StackPanel>
 
 
-                                <ListBox.ItemContainerStyle>
-                                    <Style>
-                                        <Setter Property="ListBoxItem.Margin" Value="5,3,5,3"/>
-                                        <Setter Property="ListBoxItem.Padding" Value="5"/>
-                                        <Setter Property="ListBoxItem.Background" Value="WhiteSmoke"/>
-                                    </Style>
-                                </ListBox.ItemContainerStyle>
+
+
+                                            </StackPanel>
+                                        </Grid>
+                                        
+                                    </ItemContainerTemplate>
+                                </ListBox.ItemTemplate>
+                                
                             </ListBox>
 
-                        </StackPanel>
+                        </Grid>
                     </TabItem>
                     <TabItem Header="плэйлисты">
                         <Grid>
@@ -155,8 +185,8 @@
 
                                 <StackPanel Orientation="Horizontal"
                                             HorizontalAlignment="Center">
-                                    <Label x:Name="L_title"/>
-                                    <Label x:Name="L_list"/>
+                                    <Label x:Name="L_title" FontSize="16" FontFamily="Impact" Foreground="{DynamicResource itemColor_1}"/>
+                                    <Label x:Name="L_list" FontSize="12"/>
                                 </StackPanel>
 
                                 <Label x:Name="L_artist"
@@ -262,62 +292,26 @@
                     </Button.Template>
                 </Button>
                 <Button Height="30" Width="30" Margin="10,0,0,0" Click="B_repeat_Click" x:Name="b_repeat">
-                        <Button.Template>
-                            <ControlTemplate>
-                                <Grid>
-                                    <Rectangle Height="30" Width="30"
-                                               RadiusX="5" RadiusY="5"
-                                               x:Name="rec_button_1t"
-                                               Fill="{StaticResource MainColor}"/>
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Grid>
+                                <Rectangle Fill="{StaticResource MainColor}" 
+                                       Width="{Binding ActualWidth, ElementName=button, Mode=OneWay}" 
+                                       Height="{Binding ActualHeight, ElementName=button, Mode=OneWay}"
+                                       RadiusX="5" RadiusY="5"/>
+
+                                <Path Data="M134.82762,237.17039 C135.99035,233.02539 141.79495,230.67725 148.19698,230.62283 158.00743,230.53944 162.03666,234.73701 162.03666,240.58542" HorizontalAlignment="Left" Height="10.001" Margin="6,5,0,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="18" StrokeThickness="3" StrokeStartLineCap="Round"/>
+                                <Path Data="M142.09956,215.77215 C142.09956,220.39142 147.31599,223.2398 156.02598,223.2398 161.91547,223.2398 166.9628,221.42056 168.37606,218.48584" HorizontalAlignment="Left" Height="9.881" Margin="6,15,0,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="17.707" StrokeThickness="3" StrokeEndLineCap="Round"/>
+                                <Path Data="M70.578726,209.63057 L74.192858,209.62658 72.373111,206.83614 z" Fill="{StaticResource ButtonColor_1}" HorizontalAlignment="Left" Height="3.933" Stretch="Fill" Margin="4.4,13.767,0,0" Stroke="{StaticResource ResourceKey=ButtonColor_1}" StrokeThickness="0.1" VerticalAlignment="Top" Width="6.14"/>
+                                <Path Data="M66.989048,201.33158 L76.332759,201.35189 71.654132,204.40826 z" Fill="{StaticResource ButtonColor_1}" HorizontalAlignment="Left" Height="3.934" Stretch="Fill" Margin="19.367,12.266,0,0" Stroke="{StaticResource ResourceKey=ButtonColor_1}" VerticalAlignment="Top" Width="6.14" StrokeThickness="0.1"/>
 
 
-                                    <Path Data="M120.44618,91.46466 C121.23883,79.765228 114.69588,75.090049 105.6959,74.589773 94.953784,74.17983 89.69097,81.162639 91.205852,91.019614" HorizontalAlignment="Right" Height="10.001" StrokeStartLineCap="Round" Margin="0,3.499,4.002,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="21.999" StrokeThickness="3" RenderTransformOrigin="0.5,0.5">
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform ScaleX="-1"/>
-                                                <SkewTransform/>
-                                                <RotateTransform Angle="-0.194"/>
-                                                <TranslateTransform X="-0.24393158201564802" Y="0.0004129690923555529"/>
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                <Path Data="M120.44618,91.46466 C121.23883,79.765228 114.69588,75.090049 105.6959,74.589773 94.953784,74.17983 89.69097,81.162639 91.205852,91.019614" HorizontalAlignment="Left" Height="10" StrokeStartLineCap="Round" Margin="4.428,17.002,0,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="20.954" StrokeThickness="3" RenderTransformOrigin="0.5,0.5">
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform ScaleY="-1"/>
-                                                <SkewTransform/>
-                                                <RotateTransform Angle="0.458"/>
-                                                <TranslateTransform X="-0.24393158201564802" Y="0.0004129690923555529"/>
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                <Path Data="M60.75,86.25 L56.75,91.75 64,91.75 z" HorizontalAlignment="Left" Height="4.121" Margin="3.466,15.873,0,0" StrokeStartLineCap="Round" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" StrokeThickness="3" VerticalAlignment="Top" Width="4.61" RenderTransformOrigin="-2.33,0.498">
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform/>
-                                                <SkewTransform/>
-                                                <RotateTransform Angle="-1.201"/>
-                                                <TranslateTransform X="0.013" Y="0.466"/>
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
-                                <Path Data="M60.75,86.25 L56.75,91.75 64,91.75 z" HorizontalAlignment="Left" Height="3.523" Margin="22.182,9.738,0,0" StrokeStartLineCap="Round" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" StrokeThickness="3" VerticalAlignment="Top" Width="3.8" RenderTransformOrigin="0.5,0.5">
-                                        <Path.RenderTransform>
-                                            <TransformGroup>
-                                                <ScaleTransform/>
-                                                <SkewTransform/>
-                                                <RotateTransform Angle="-180.678"/>
-                                                <TranslateTransform/>
-                                            </TransformGroup>
-                                        </Path.RenderTransform>
-                                    </Path>
 
+                            </Grid>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
 
-                                </Grid>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
-                
             </StackPanel>
             <!--center-->
             <StackPanel Orientation="Horizontal"

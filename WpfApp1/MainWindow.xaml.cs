@@ -31,16 +31,16 @@ namespace WpfApp1
     /// </summary>
     /// 
 
-    struct Track
+    public class Track
     {
         //обязательные поля
         public object Id;
         public string filename;
-        public string title;
+        public string title { get; set; }
         public TimeSpan duration;
 
         //необязательные поля
-        public object artist;
+        public object artist { get; set; }
         public object album;
         public DateTime year;
         //art
@@ -196,7 +196,7 @@ namespace WpfApp1
             var taglib = TagLib.File.Create(nameFile);
 
             //заполнение обязательных полей
-            Track track;
+            Track track = new Track();
             track.filename = Func_shielding(nameFile.Substring(1 + music_folder_full.Length + newmusic_folder_name.Length));
             track.title = Func_shielding(taglib.Tag.Title);
             track.duration = taglib.Properties.Duration;
@@ -377,7 +377,7 @@ namespace WpfApp1
             if (tracks.Count != 0)
             {
                 mediaelement.Source = new Uri(music_folder_full + allmusic_folder_name + "\\" + tracks[index].filename);
-                Track_art.Source = new BitmapImage(new Uri("imageapp/no_art.jpg", UriKind.Relative));
+                Track_art.Source = new BitmapImage(new Uri("imageapp/dtpxAvHiRes.jpg", UriKind.Relative));
                 //m_listbox.SelectedIndex = index; //вызывает ошибку в логике
                 //mediaelement.Clock !!1!11!1!!!!
 
@@ -455,7 +455,7 @@ namespace WpfApp1
                     temp.artist = reader.GetString(3);
 
                     tracks.Add(temp);
-                    m_listbox.Items.Add(temp.title + " | " + temp.artist);
+                    m_listbox.Items.Add(temp);
                 }
             }
             reader.Close();
@@ -574,7 +574,7 @@ namespace WpfApp1
             if (bool_shuffle)
             {
                 bool_shuffle = false;
-                MessageBox.Show("повторение композиций\nотключено");
+                MessageBox.Show("перемешивание композиций\nотключено");
 
                 //очистка списка
                 crutch_1 = false;
@@ -584,13 +584,13 @@ namespace WpfApp1
                 //загрузка элементов в лист бокс
                 foreach (Track i in tracks)
                 {
-                    m_listbox.Items.Add(i.title + " | " + i.artist);
+                    m_listbox.Items.Add(i);
                 }
             }
             else
             {
                 bool_shuffle = true;
-                MessageBox.Show("повторение композиций\nвключено");
+                MessageBox.Show("перемешивание композиций\nвключено");
 
                 orderOfTheIndexes = new int[tracks.Count];
                 Random rnd = new Random();
@@ -625,7 +625,7 @@ namespace WpfApp1
                 //повторная загрузка в ранее заданном порядке
                 for (int i = 0; i < tracks.Count; i++)
                 {
-                    m_listbox.Items.Add(tracks[orderOfTheIndexes[i]].title + " | " + tracks[orderOfTheIndexes[i]].artist);
+                    m_listbox.Items.Add(tracks[orderOfTheIndexes[i]]);
                 }
 
                 m_index = 0;
@@ -693,8 +693,18 @@ namespace WpfApp1
             {
                 TimeSpan MNaturalDuration = mediaelement.NaturalDuration.TimeSpan;
                 m_slider.Maximum = MNaturalDuration.TotalSeconds;
-                m_naturalDuration_label.Content = MNaturalDuration.Minutes + ":" + MNaturalDuration.Seconds;
 
+                //минуты
+                if (MNaturalDuration.Minutes < 10)
+                    m_naturalDuration_label.Content = "0" + MNaturalDuration.Minutes + ":";
+                else
+                    m_naturalDuration_label.Content = MNaturalDuration.Minutes + ":";
+
+                //секунды
+                if (MNaturalDuration.Seconds < 10)
+                    m_naturalDuration_label.Content += "0" + MNaturalDuration.Seconds;
+                else
+                    m_naturalDuration_label.Content += "" + MNaturalDuration.Seconds;
             }
         }
         private void Mediaelement_MediaEnded(object sender, RoutedEventArgs e)
@@ -765,6 +775,9 @@ namespace WpfApp1
         }
         private void M_listbox_combobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            //сброс состояния кнопки перемешивания
+            bool_shuffle = false;
+
             switch (m_listbox_combobox.SelectedIndex)
             {
                 //все треки
@@ -799,7 +812,7 @@ namespace WpfApp1
                     //обновление литбокса
                     foreach (Track i in tracks)
                     {
-                        m_listbox.Items.Add(i.title + " | " + i.artist);
+                        m_listbox.Items.Add(i);
                     }
 
                     //установка индекса в начало списка
@@ -862,7 +875,7 @@ namespace WpfApp1
 
                 foreach (Track i in tracks)
                 {
-                    m_listbox.Items.Add(i.title + " | " + i.artist);
+                    m_listbox.Items.Add(i);
                 }
 
                 loadedmediasourse(in_listbox.SelectedIndex);
@@ -979,7 +992,7 @@ namespace WpfApp1
 
                 foreach (Track i in tracks)
                 {
-                    m_listbox.Items.Add(i.title + " | " + i.artist);
+                    m_listbox.Items.Add(i);
                 }
 
                 loadedmediasourse(in_album_listbox.SelectedIndex);
