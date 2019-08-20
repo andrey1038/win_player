@@ -11,6 +11,20 @@
         MinHeight="450" MinWidth="300"
         Closing="Window_Closing">
 
+
+    <Window.Resources>
+
+
+
+        <SolidColorBrush x:Key="MainColor" Color="White"/>
+        <SolidColorBrush x:Key="ButtonColor_1" Color="#77797b"/>
+
+
+        
+        
+    </Window.Resources>
+    
+    
     <Grid ShowGridLines="False">
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
@@ -20,7 +34,7 @@
         </Grid.RowDefinitions>
 
         <!--верхняя область-->
-        <Grid Grid.Row="0" Background="#4a4c4f">
+        <Grid Grid.Row="0" Background="{StaticResource MainColor}">
 
             
 
@@ -44,6 +58,7 @@
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                  SelectedItem="1"
                                  SelectionChanged="M_listbox_SelectionChanged">
+
 
                                 <ListBox.ItemContainerStyle>
                                     <Style>
@@ -213,7 +228,7 @@
                    Grid.Row="2"/>
 
         <!--нижняя область_2-->
-        <Grid Grid.Row="3" Background="#4a4c4f">
+        <Grid Grid.Row="3" Background="{StaticResource MainColor}">
 
             <MediaElement x:Name="mediaelement"
                           LoadedBehavior="Manual"
@@ -234,30 +249,75 @@
                         <ControlTemplate TargetType="Button">
                             <Grid>
                                 <Rectangle Height="30" Width="50"
-                                           RadiusX="5" RadiusY="5"
                                            x:Name="rec_button_1t"
-                                           Fill="#4a4c4f"/>
+                                           Fill="{StaticResource MainColor}"/>
 
-                                <Path Data="M333.98538,196.86682 C337.28612,196.86682 341.6998,196.86682 343.00441,196.86682 348.16595,196.86682 350.29994,210.82381 355.24562,210.82381 L364.33546,210.82381" HorizontalAlignment="Center" Height="15.957"  Stretch="Fill" Stroke="#77797b" StrokeThickness="3" VerticalAlignment="Center" Width="32" StrokeStartLineCap="Round"/>
-                                <Path Data="M333.98538,198.41116 L342.80208,198.41116 C347.78657,198.41116 350.16399,184.46566 355.14445,184.46566 360.15109,184.46566 361.00977,184.46566 364.33546,184.46566" HorizontalAlignment="Center" Height="15.945"  Stretch="Fill" Stroke="#77797b" StrokeThickness="3" VerticalAlignment="Center" Width="32" StrokeStartLineCap="Round"/>
-                                <Path Data="M391.77961,178.96736 L391.77961,176.14197 393.22923,177.59179 z" HorizontalAlignment="Right" Margin="0,13,8.5,0" Height="6.141" Stretch="Fill" Stroke="#77797b" Width="3.933" Fill="#77797b"/>
-                                <Path Data="M391.77961,178.96737 L391.77961,176.14198 393.22923,177.5918 z" HorizontalAlignment="Right" Margin="0,0,8.5,13" Height="6.14" Stretch="Fill" Stroke="#77797b" Width="3.933" Fill="#77797b"/>
+                                <Path Stroke="{StaticResource ButtonColor_1}" Data="M333.98538,196.86682 C337.28612,196.86682 341.6998,196.86682 343.00441,196.86682 348.16595,196.86682 350.29994,210.82381 355.24562,210.82381 L364.33546,210.82381" HorizontalAlignment="Center" Height="15.957"  Stretch="Fill"  StrokeThickness="3" VerticalAlignment="Center" Width="32" StrokeStartLineCap="Round"/>
+                                <Path Stroke="{StaticResource ButtonColor_1}" Data="M333.98538,198.41116 L342.80208,198.41116 C347.78657,198.41116 350.16399,184.46566 355.14445,184.46566 360.15109,184.46566 361.00977,184.46566 364.33546,184.46566" HorizontalAlignment="Center" Height="15.945"  Stretch="Fill"  StrokeThickness="3" VerticalAlignment="Center" Width="32" StrokeStartLineCap="Round"/>
+                                <Path Fill="{StaticResource ButtonColor_1}" Stroke="{StaticResource ButtonColor_1}" Data="M391.77961,178.96736 L391.77961,176.14197 393.22923,177.59179 z" HorizontalAlignment="Right" Margin="0,13,8.5,0" Height="6.141" Stretch="Fill" Width="3.933"/>
+                                <Path Fill="{StaticResource ButtonColor_1}" Stroke="{StaticResource ButtonColor_1}" Data="M391.77961,178.96737 L391.77961,176.14198 393.22923,177.5918 z" HorizontalAlignment="Right" Margin="0,0,8.5,13" Height="6.14" Stretch="Fill" Width="3.933" />
 
                             </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsPressed" Value="true">
-                                    <Setter TargetName="rec_button_1t" Property="Fill" Value="LightGray"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
-                
-                <Button x:Name="b_repeat" Content="repeat"
-                        Height="24" Width="50" Margin="10,0,0,0"
-                        Click="B_repeat_Click">
+                <Button Height="30" Width="30" Margin="10,0,0,0" Click="B_repeat_Click" x:Name="b_repeat">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <Grid>
+                                    <Rectangle Height="30" Width="30"
+                                               RadiusX="5" RadiusY="5"
+                                               x:Name="rec_button_1t"
+                                               Fill="{StaticResource MainColor}"/>
 
-                </Button>
+
+                                    <Path Data="M120.44618,91.46466 C121.23883,79.765228 114.69588,75.090049 105.6959,74.589773 94.953784,74.17983 89.69097,81.162639 91.205852,91.019614" HorizontalAlignment="Right" Height="10.001" StrokeStartLineCap="Round" Margin="0,3.499,4.002,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="21.999" StrokeThickness="3" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform ScaleX="-1"/>
+                                                <SkewTransform/>
+                                                <RotateTransform Angle="-0.194"/>
+                                                <TranslateTransform X="-0.24393158201564802" Y="0.0004129690923555529"/>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                <Path Data="M120.44618,91.46466 C121.23883,79.765228 114.69588,75.090049 105.6959,74.589773 94.953784,74.17983 89.69097,81.162639 91.205852,91.019614" HorizontalAlignment="Left" Height="10" StrokeStartLineCap="Round" Margin="4.428,17.002,0,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="20.954" StrokeThickness="3" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform ScaleY="-1"/>
+                                                <SkewTransform/>
+                                                <RotateTransform Angle="0.458"/>
+                                                <TranslateTransform X="-0.24393158201564802" Y="0.0004129690923555529"/>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                <Path Data="M60.75,86.25 L56.75,91.75 64,91.75 z" HorizontalAlignment="Left" Height="4.121" Margin="3.466,15.873,0,0" StrokeStartLineCap="Round" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" StrokeThickness="3" VerticalAlignment="Top" Width="4.61" RenderTransformOrigin="-2.33,0.498">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform/>
+                                                <SkewTransform/>
+                                                <RotateTransform Angle="-1.201"/>
+                                                <TranslateTransform X="0.013" Y="0.466"/>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+                                <Path Data="M60.75,86.25 L56.75,91.75 64,91.75 z" HorizontalAlignment="Left" Height="3.523" Margin="22.182,9.738,0,0" StrokeStartLineCap="Round" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" StrokeThickness="3" VerticalAlignment="Top" Width="3.8" RenderTransformOrigin="0.5,0.5">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform/>
+                                                <SkewTransform/>
+                                                <RotateTransform Angle="-180.678"/>
+                                                <TranslateTransform/>
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
+
+
+                                </Grid>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                
             </StackPanel>
             <!--center-->
             <StackPanel Orientation="Horizontal"
@@ -270,7 +330,7 @@
                             <Grid>
                                 <Rectangle Height="30" Width="30" 
                                    RadiusX="5" RadiusY="5" 
-                                   Fill="#4a4c4f"/>
+                                   Fill="{StaticResource MainColor}"/>
                                 <Polygon Points="
                                      2,16 
                                      14,4 
@@ -280,7 +340,7 @@
                                      14,16
                                      14,28"
                             
-                                     Fill="#77797b"/>
+                                     Fill="{StaticResource ButtonColor_1}"/>
                             </Grid>
                         </ControlTemplate>
                     </Button.Template>
@@ -292,21 +352,16 @@
                             <Grid>
                                 <Rectangle Height="30" Width="30" 
                                    RadiusX="10" RadiusY="10" 
-                                   Fill="#4a4c4f" x:Name="rec_b_t"/>
+                                   Fill="{StaticResource MainColor}"/>
                                 <Rectangle Height="24" Width="7" 
                                    RadiusX="2" RadiusY="2"
-                                   Fill="#77797b"
+                                   Fill="{StaticResource ButtonColor_1}"
                                    Margin="0,0,11,0"/>
                                 <Rectangle Height="24" Width="7" 
                                    RadiusX="2" RadiusY="2" 
-                                   Fill="#77797b"
+                                   Fill="{StaticResource ButtonColor_1}"
                                    Margin="11,0,0,0"/>
                             </Grid>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsPressed" Value="true">
-                                    <Setter TargetName="rec_b_t" Property="Fill" Value="LightGray"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Button.Template>
                 </Button>
@@ -317,7 +372,7 @@
                             <Grid>
                                 <Rectangle Height="30" Width="30" 
                                    RadiusX="5" RadiusY="5" 
-                                   Fill="#4a4c4f"/>
+                                   Fill="{StaticResource MainColor}"/>
                                 <Polygon Points="
                                      4,4
                                      16,14 
@@ -327,7 +382,7 @@
                                      16,14 
                                      4,26" 
                                      
-                                     Fill="#77797b"/>
+                                     Fill="{StaticResource ButtonColor_1}"/>
                             </Grid>
                         </ControlTemplate>
                     </Button.Template>
@@ -338,9 +393,41 @@
             <StackPanel Orientation="Horizontal"
             HorizontalAlignment="Right">
 
-                <Path Data="M6.0000002,0.5 C7.5187833,0.49999994 9.8406047,3.1089057 9.8890874,4.4093881 L9.8718756,4.409421 C9.8781067,3.133906 12.281217,0.49999994 13.8,0.5 16.837566,0.49999994 19.3,2.9624338 19.3,5.9999999 19.3,9.0375661 11.036302,17.144143 10.040998,16.148838 L9.937352,16.145193 C8.9420479,17.140497 0.46096258,9.707963 0.46096258,6.6703969 0.46096258,3.6328307 2.9624343,0.49999994 6.0000002,0.5 z" 
-                              Fill="#77797b" Stretch="Fill" Width="29.636" Margin="0,14.032,0,20.966"/>
+                <Button Height="30" Width="30">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Grid>
+                                <Rectangle Height="30" Width="30" 
+                                           RadiusX="5" RadiusY="5"  
+                                           Fill="{StaticResource MainColor}"/>
 
+                                <Path Data="M338.125,199 C331.52333,192.81567 326.85461,193.75165 324,199.75 322.14135,203.29258 326.19322,208.10278 337.625,214.5009" HorizontalAlignment="Left" Height="25.692" StrokeStartLineCap="Round" Margin="1.966,3.234,0,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="14.939" StrokeThickness="3" RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform/>
+                                            <SkewTransform/>
+                                            <RotateTransform Angle="-8.109"/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+
+                                <Path Data="M338.125,199 C331.52333,192.81567 326.85461,193.75165 324,199.75 322.14135,203.29258 326.19322,208.10278 337.625,214.5009" HorizontalAlignment="Left" Height="25.692" StrokeStartLineCap="Round" Margin="13.155,2.671,0,0" Stretch="Fill" Stroke="{StaticResource ButtonColor_1}" VerticalAlignment="Top" Width="15.297" RenderTransformOrigin="0.5,0.5" StrokeThickness="3">
+                                    <Path.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform ScaleX="-1"/>
+                                            <SkewTransform/>
+                                            <RotateTransform Angle="1.368"/>
+                                            <TranslateTransform/>
+                                        </TransformGroup>
+                                    </Path.RenderTransform>
+                                </Path>
+
+                            </Grid>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                
                 <Expander VerticalAlignment="Center"
                           ExpandDirection="Left"
                           Margin="50,5,0,0"
@@ -367,4 +454,6 @@
         </Grid>
 
     </Grid>
+    
+    
 </Window>

@@ -8,18 +8,39 @@
         Title="DB_Worker" Height="650" Width="700"
         >
     <Grid ShowGridLines="True">
+        
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="1*"/>
             <RowDefinition Height="50"/>
         </Grid.RowDefinitions>
 
+        <Grid>
 
-        <Button x:Name="DBW_ok" Content="применить" Click="DBW_ok_Click"
-                Grid.Row="1" Height="25" Width="150" Margin="10,0,0,0"
-                HorizontalAlignment="Left"/>
-        <Button x:Name="DBW_cancel" Content="отмена" Click="DBW_cancel_Click"
-                Grid.Row="1" Height="25" Width="150" Margin="0,0,10,0"
-                HorizontalAlignment="Right"/>
+            <Button x:Name="helpbutton" Command="ApplicationCommands.Help" Content="Help" Height="50" Width="150"/>
+
+        </Grid>
+        
+        <ListBox x:Name="f_listbox" Grid.Row="1" Background="#defade"
+                 SelectionChanged="F_listbox_SelectionChanged">
+            
+        </ListBox>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="2" FlowDirection="LeftToRight" HorizontalAlignment="Center"
+                    >
+            
+            <Button x:Name="DBW_ok" Content="применить" Click="DBW_ok_Click"
+                    Height="25" Width="150" Margin="5,0"
+                />
+            <Button x:Name="lastTrack" Content="след. трек" Click="LastTrack_Click"
+                    Height="25" Width="150" Margin="5,0"
+                />
+            <Button x:Name="DBW_cancel" Content="отмена" Click="DBW_cancel_Click"
+                    Height="25" Width="150" Margin="5,0"
+                />
+            
+        </StackPanel>
+        
         
         
         

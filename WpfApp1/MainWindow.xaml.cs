@@ -71,15 +71,17 @@ namespace WpfApp1
         SqlCommand command;
         SqlDataReader reader;
 
-        List<Track> tracks = new List<Track>();
-        List<Track> tracks_p = new List<Track>();
-        List<Track> tracks_t = new List<Track>();
-        List<PList> pLists = new List<PList>();
-        List<Artist> aList = new List<Artist>();
-        List<Album> albums = new List<Album>();
-
 
         //var application
+
+        List<Track> tracks = new List<Track>();     //главный лист треков
+        List<Track> tracks_p = new List<Track>();   //временный лист для вкладки плей листы
+        List<Track> tracks_t = new List<Track>();   //временный лист для вкладки артисты
+
+        List<PList> pLists = new List<PList>();     //лист плей листов пользователя
+        List<Artist> aList = new List<Artist>();    //лист артистов
+        List<Album> albums = new List<Album>();     //лист альбомов артиста
+
         const string allmusic_folder_name = "all your music";
         const string newmusic_folder_name = "here new music";
         const string music_folder_name = "wpf1";
@@ -92,9 +94,8 @@ namespace WpfApp1
         int[] orderOfTheIndexes;
         bool crutch_1 = true;
 
-        //var 2 window 
-        DB_Worker dB_Worker = new DB_Worker();
 
+        DB_Worker dB_Worker;
 
         //------------my Functions----------//
         private string Func_shielding(string str)
@@ -402,6 +403,7 @@ namespace WpfApp1
                 connection.Open();
 
                 /*MessageBox.Show("свойства подключениея к базе данных: " + "\n" +
+                    "  * окно: ---------------- Main\n" +
                     "  * база данных: --------- " + connection.Database + "\n" +
                     "  * id рабочей станции: -- " + connection.WorkstationId + "\n" +
                     "  * id клиента: ---------- " + connection.ClientConnectionId + "\n" +
@@ -435,8 +437,8 @@ namespace WpfApp1
             //сканирование папки на наличие новых треков и последующей обработке
             ScanningFolder();
 
-            //вызов окна DB_worcker
-            //dB_Worker.Show();
+            //DB_worcker
+            dB_Worker = new DB_Worker(ConnectionString, music_folder_full + newmusic_folder_name);
 
             //загрузка треков из БД
             sqlExpression = "SELECT t1.Id, t1.filename, t1.title, t2.name FROM Track as t1 LEFT OUTER JOIN Artist as t2 ON t1.artist = t2.Id";
