@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
 using TagLib;
+using System.Windows.Media.Animation;
 using System.Data.SqlClient;
 
 
@@ -48,7 +49,9 @@ namespace WpfApp1
     struct PList
     {
         public object Id;
-        public string name;
+        public string name { get; set; }
+        public string imagesourse { get; set; }
+        public int counttrack { get; set; }
     }
     struct Artist
     {
@@ -61,6 +64,8 @@ namespace WpfApp1
         public object Id;
         public string name;
     }
+
+    
 
     public partial class MainWindow : Window
     {
@@ -92,7 +97,7 @@ namespace WpfApp1
         bool bool_repeat = false;
         bool bool_shuffle = false;
         int[] orderOfTheIndexes;
-        bool crutch_1 = true;
+        bool ignoreSelectionChanged = true;
 
 
         DB_Worker dB_Worker;
@@ -460,6 +465,12 @@ namespace WpfApp1
             }
             reader.Close();
 
+            //+1 элемент в лист бокс
+            PList newlistitem = new PList();
+            newlistitem.imagesourse = "imageapp\\Без имени-1.jpg";
+            newlistitem.name = "";
+            p_listbox.Items.Add(newlistitem);
+
             //загрузка плей листов из БД
             sqlExpression = "SELECT Id, name FROM PlayList";
             command = new SqlCommand(sqlExpression, connection);
@@ -471,9 +482,10 @@ namespace WpfApp1
                     PList temp = new PList();
                     temp.Id = reader.GetValue(0);
                     temp.name = reader.GetString(1);
+                    temp.imagesourse = "imageapp\\dtpxAvHiRes.jpg";
 
                     pLists.Add(temp);
-                    p_listbox.Items.Add(temp.name);
+                    p_listbox.Items.Add(temp);
                 }
             }
             reader.Close();
@@ -577,9 +589,9 @@ namespace WpfApp1
                 MessageBox.Show("перемешивание композиций\nотключено");
 
                 //очистка списка
-                crutch_1 = false;
+                ignoreSelectionChanged = false;
                 m_listbox.Items.Clear();
-                crutch_1 = true;
+                ignoreSelectionChanged = true;
 
                 //загрузка элементов в лист бокс
                 foreach (Track i in tracks)
@@ -618,9 +630,9 @@ namespace WpfApp1
                 }
 
                 //очистка списка
-                crutch_1 = false;
+                ignoreSelectionChanged = false;
                 m_listbox.Items.Clear();
-                crutch_1 = true;
+                ignoreSelectionChanged = true;
 
                 //повторная загрузка в ранее заданном порядке
                 for (int i = 0; i < tracks.Count; i++)
@@ -634,6 +646,17 @@ namespace WpfApp1
         }
 
                 //--page_2--//
+        private void Tab_PL_button_back(object sender, RoutedEventArgs e)
+        {
+            //изменение внешнего вида на вкладке плейлисты
+            DoubleAnimation widthanimation = new DoubleAnimation();
+            widthanimation.From = tab_PL_grid_1.ActualWidth;
+            widthanimation.To = 0;
+            widthanimation.Duration = TimeSpan.FromSeconds(0.15);
+            tab_PL_grid_1.BeginAnimation(Grid.WidthProperty, widthanimation);
+
+            in_listbox.Visibility = Visibility.Hidden;
+        }
         private void B_newPlayList_Click(object sender, RoutedEventArgs e)
         {
             AddPlayList(NewNamePlayList.Text);
@@ -664,8 +687,16 @@ namespace WpfApp1
         }
 
         //--------------window--------------//
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            //mediaelement высвобождается с задержкой
+            if (b_sp)
+                mediaelement.Pause();
+
             //высвобождение ресурсов DB_Worcker
             if (dB_Worker.ShowActivated)
             {
@@ -758,7 +789,7 @@ namespace WpfApp1
             //----lists----//
         private void M_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (crutch_1)
+            if (ignoreSelectionChanged)
             {
                 if (bool_shuffle)
                 {
@@ -783,12 +814,12 @@ namespace WpfApp1
                 //все треки
                 case 0:
                     //очистка списков
-                    crutch_1 = false;
+                    ignoreSelectionChanged = false;
                     m_listbox.Items.Clear();
                     in_listbox.Items.Clear();
                     in_album_listbox.Items.Clear();
                     tracks.Clear();
-                    crutch_1 = true;
+                    ignoreSelectionChanged = true;
 
                     //загрузка треков из БД
                     sqlExpression = "SELECT t1.Id, t1.filename, t1.title, t2.name FROM Track as t1 LEFT OUTER JOIN Artist as t2 ON t1.artist = t2.Id";
@@ -823,55 +854,77 @@ namespace WpfApp1
         }
         private void P_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            //очитска списков
-            crutch_1 = false;
-            in_listbox.Items.Clear();
-            tracks_p.Clear();
-            crutch_1 = true;
+            //  -----------------------------------------------------------------------------------------
+            //  первый элемент списка p_listbox не является плей листом и отвечает за создание плей листа
+            //  -----------------------------------------------------------------------------------------
 
-            m_listbox_combobox.SelectedIndex = -1;
-
-            //загрузка Id выбраного плей листа
-            object tempid = pLists[p_listbox.SelectedIndex].Id;
-
-            //запрос в БД на выборку треков текущего плей листа
-            sqlExpression = "SELECT Track.Id, Track.filename, Track.title, Artist.name FROM " +
-                "(Track LEFT OUTER JOIN Artist ON Track.artist = Artist.Id) " +
-                "INNER JOIN inPlayList ON inPlayList.track = Track.Id " +
-                "WHERE inPlayList.playlist = '" + tempid + "'";
-            command = new SqlCommand(sqlExpression, connection);
-            reader = command.ExecuteReader();
-            if (!reader.HasRows)
+            if (p_listbox.SelectedIndex == 0)
             {
-                MessageBox.Show("плей лист пуст");
+                
             }
             else
             {
-                //заполенение листа tracks
-                while (reader.Read())
+                //очитска списков
+                ignoreSelectionChanged = false;
+                in_listbox.Items.Clear();
+                tracks_p.Clear();
+                ignoreSelectionChanged = true;
+
+                m_listbox_combobox.SelectedIndex = -1;
+
+                //загрузка Id выбраного плей листа
+                object tempid = pLists[p_listbox.SelectedIndex - 1].Id; //1 вычитается тк. первый элемент списка p_listbox не является плей листом и его не существует в листе pLists
+
+                //запрос в БД на выборку треков текущего плей листа
+                sqlExpression = "SELECT Track.Id, Track.filename, Track.title, Artist.name FROM " +
+                    "(Track LEFT OUTER JOIN Artist ON Track.artist = Artist.Id) " +
+                    "INNER JOIN inPlayList ON inPlayList.track = Track.Id " +
+                    "WHERE inPlayList.playlist = '" + tempid + "'";
+                command = new SqlCommand(sqlExpression, connection);
+                reader = command.ExecuteReader();
+                if (!reader.HasRows)
                 {
-                    Track temp = new Track();
-                    temp.Id = reader.GetValue(0);
-                    temp.filename = reader.GetString(1);
-                    temp.title = reader.GetString(2);
-                    temp.artist = reader.GetString(3);
-
-                    tracks_p.Add(temp);
-                    in_listbox.Items.Add(temp.title + " | " + temp.artist);
+                    MessageBox.Show("плей лист пуст");
                 }
-            }
+                else
+                {
+                    //контекс данных для грида доп информации
+                    tab_PL_grid_1.DataContext = pLists[p_listbox.SelectedIndex - 1];
 
-            reader.Close();
+                    //изменение внешнего вида на вкладке плейлисты
+                    DoubleAnimation widthanimation = new DoubleAnimation();
+                    widthanimation.From = tab_PL_grid_1.ActualWidth;
+                    widthanimation.To = 200;
+                    widthanimation.Duration = TimeSpan.FromSeconds(0.15);
+                    tab_PL_grid_1.BeginAnimation(Grid.WidthProperty, widthanimation);
+                    in_listbox.Visibility = Visibility.Visible;
+
+                    //заполенение листа tracks
+                    while (reader.Read())
+                    {
+                        Track temp = new Track();
+                        temp.Id = reader.GetValue(0);
+                        temp.filename = reader.GetString(1);
+                        temp.title = reader.GetString(2);
+                        temp.artist = reader.GetString(3);
+
+                        tracks_p.Add(temp);
+                        in_listbox.Items.Add(temp);
+                    }
+                }
+
+                reader.Close();
+            }
         }
         private void In_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (crutch_1)
+            if (ignoreSelectionChanged)
             {
                 tracks = tracks_p;
 
-                crutch_1 = false;
+                ignoreSelectionChanged = false;
                 m_listbox.Items.Clear();
-                crutch_1 = true;
+                ignoreSelectionChanged = true;
 
                 foreach (Track i in tracks)
                 {
@@ -885,12 +938,12 @@ namespace WpfApp1
         private void Artist_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //очиска списков
-            crutch_1 = false;
+            ignoreSelectionChanged = false;
             tracks_t.Clear();
             albums.Clear();
             album_listbox.Items.Clear();
             in_album_listbox.Items.Clear();
-            crutch_1 = true;
+            ignoreSelectionChanged = true;
 
             //получение Id выбраного артиста
             object tempidartist = aList[artist_listbox.SelectedIndex].Id;
@@ -938,13 +991,13 @@ namespace WpfApp1
         }
         private void Album_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (crutch_1)
+            if (ignoreSelectionChanged)
             {
                 //очиска списков
-                crutch_1 = false;
+                ignoreSelectionChanged = false;
                 tracks_t.Clear();
                 in_album_listbox.Items.Clear();
-                crutch_1 = true;
+                ignoreSelectionChanged = true;
 
                 m_listbox_combobox.SelectedIndex = -1;
 
@@ -982,13 +1035,13 @@ namespace WpfApp1
         }
         private void In_album_listbox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (crutch_1)
+            if (ignoreSelectionChanged)
             {
                 tracks = tracks_t;
 
-                crutch_1 = false;
+                ignoreSelectionChanged = false;
                 m_listbox.Items.Clear();
-                crutch_1 = true;
+                ignoreSelectionChanged = true;
 
                 foreach (Track i in tracks)
                 {

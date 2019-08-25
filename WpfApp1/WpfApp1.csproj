@@ -139,6 +139,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <DependentUpon>DatabaseApp.mdf</DependentUpon>
     </Content>
+    <Resource Include="imageapp\Без имени-1.jpg" />
     <Resource Include="imageapp\dtpxAvHiRes.jpg" />
     <Resource Include="imageapp\no_art.jpg" />
   </ItemGroup>
